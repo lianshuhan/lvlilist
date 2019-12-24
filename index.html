@@ -4,16 +4,30 @@
 
     <p>我的学号是<span id="mynumber"></span>
     </p>
-    <a id="btn" href="login.html">去登录</a>
-    
-    <img src="matrix.png"/>
+    <a id="alogin" href="login.html">去登录</a>
+    <a id="alogout" href="#">去注销</a>
+
+    <input id="content" type="text">
+    <button id="btnAdd">添加</button>
+    <ul id="ul">
+        <li>2</li>
+        <li>3</li>
+    </ul>
     <script src="jquery-3.4.1.js"></script>
     <script>
         $(function(){
 
             var callback=function (result){
-               $("#myname").text(result.myname);
-               $("#mynumber").text(result.mynumber);
+                if(!result || !result.myname){//如果未获取信息，去登陆
+                    $("#alogout").hide();
+                    $("#btnAdd").hide();
+                    $("#content").hide();
+
+                }else{//已获取信息，去注销
+                    $("#myname").text(result.myname);
+                    $("#mynumber").text(result.mynumber);
+                    $("#alogin").hide();
+                }
              }
              $.ajax({
                 type:"POST",
@@ -25,6 +39,31 @@
                 success:callback
              });
 
+             $.get("http://127.0.0.1:8585/lvlilist",
+                    function(result){
+                        for(var i=0;i<result.length;i++){
+                            $("#ul").append("<li>"+result[i]+"</li>")
+                        }
+                    })
+
+            $("#alogout").click(function(){
+                $.ajax({
+                type:"POST",
+                xhrFields: {
+                        withCredentials: true
+                },
+                url:"http://127.0.0.1:8585/logout",
+                success:function(){
+                    location.href="index.html";
+                }
+             });
+            });
+
+            $("#btnAdd").click(function(){
+                $.post("http://127.0.0.1:8585/addlvli",{lvli:$("#content").val()},function(){
+                    location.href="index.html";//post(url,data,function回调函数)
+                })
+            })
    
         })
 
